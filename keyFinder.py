@@ -1,5 +1,6 @@
 import scrapy
 import pandas as pd
+import time
 
 
 class QuotesSpider(scrapy.Spider):
@@ -8,8 +9,10 @@ class QuotesSpider(scrapy.Spider):
     totalNumber = 0     # 总数量
     curNumber = 0       # 已处理数量
     _dict = {}
+    startTime = 0
 
     def start_requests(self):
+        self.startTime = time.time()
         self.df = pd.read_csv('test.csv')
         self.totalNumber = len(self.df['URL'])
         for url in self.df['URL']:
@@ -21,6 +24,8 @@ class QuotesSpider(scrapy.Spider):
         for i in range(self.totalNumber):
             self.df['info'][i] = self._dict[self.df['URL'][i]]
         self.df.to_csv("output.csv",index=False,sep=',')
+        timecost = time.strftime("%H:%M:%S", time.gmtime(round(time.time() - self.startTime)))
+        self.log('Total time cost: ' + timecost)
         self.log('Save file to output.csv')
 
 
